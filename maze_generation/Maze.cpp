@@ -8,6 +8,10 @@ Cell::Cell(const int i, const int j)
       i(2 * i + 2),
       j(2 * j + 1) {}
 
+bool Cell::has_no_walls_connected() const {
+  return left_wall && down_wall && right_wall && top_wall;
+}
+
 void Cell::display_cell() const {
   ConsoleHandler::draw_pixel(i, j, ' ', BACKGROUND_BLUE);
 
@@ -114,8 +118,8 @@ Maze::Maze(const int width, const int height)
 }
 
 void Maze::generate() {
-  ConsoleHandler::resize_console(m_height * 2 + 6, m_width * 4 + 2);
-  std::vector visited(m_height, std::vector<bool>(m_width, false));
+  ConsoleHandler::resize_console(m_height * 2 + 12, m_width * 4 + 2);
+  std::vector visited(m_height, std::vector(m_width, false));
   std::stack<std::pair<int, int>> maze_stack;
 
   std::random_device rd;
@@ -129,7 +133,9 @@ void Maze::generate() {
     const auto curr_pos = maze_stack.top();
     const auto [curr_i, curr_j] = curr_pos;
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    maze[curr_i][curr_j].display_cell();
+    if (!maze[curr_i][curr_j].has_no_walls_connected()) {
+      maze[curr_i][curr_j].display_cell();
+    }
 
     // Check if the current cell has any unvisited neighbors
     bool has_unvisited_neighbors = false;
@@ -147,9 +153,10 @@ void Maze::generate() {
       while (true) {
         const int random_index = dist(gen) % 4;
         directions random_direction = choose_direction(random_index);
-        const auto [next_i, next_j] = new_position(curr_pos, random_direction);
 
-        if (!invalid_coords(next_i, next_j) && !visited[next_i][next_j]) {
+        if (const auto [next_i, next_j] =
+                new_position(curr_pos, random_direction);
+            !invalid_coords(next_i, next_j) && !visited[next_i][next_j]) {
           // Remove the wall between the current cell and the chosen neighbor
           erase_specific_wall(random_direction, maze[curr_i][curr_j]);
 
@@ -164,25 +171,9 @@ void Maze::generate() {
       maze_stack.pop();
     }
   }
-}
 
-void Maze::display() const {
-  for (int i = 1; i < m_height * 2 + 2; i++) {
-    if (i % 2)
-      for (int j = 0; j < m_width * 2 + 1; j++) {
-        ConsoleHandler::draw_pixel(i, j, ' ', BACKGROUND_INTENSITY);
-      }
-    else {
-      for (int j = 0; j < m_width + 1; j++) {
-        ConsoleHandler::draw_pixel(i, j * 2, ' ', BACKGROUND_INTENSITY);
-      }
-    }
+  for (const auto& row : maze) {
+    for (const auto& x : row)
+      x.display_cell();
   }
-
-  /*for (int i = 0; i < m_height; i++) {
-    for (int j = 0; j < m_width; j++) {
-      maze[i][j].display_cell();
-    }
-  }
-  }*/
 }

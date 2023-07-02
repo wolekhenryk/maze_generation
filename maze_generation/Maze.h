@@ -23,6 +23,8 @@ class Cell {
  public:
   Cell(const int i, const int j);
 
+  [[nodiscard]] bool has_no_walls_connected() const;
+
   void display_cell() const;
 
   void erase_left_wall();
@@ -58,6 +60,4 @@ class Maze {
   Maze(const int width, const int height);
 
   void generate();
-
-  void display() const;
 };
