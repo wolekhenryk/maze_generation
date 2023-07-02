@@ -118,7 +118,7 @@ Maze::Maze(const int width, const int height)
 }
 
 void Maze::generate() {
-  ConsoleHandler::resize_console(m_height * 2 + 12, m_width * 4 + 2);
+  ConsoleHandler::resize_console(m_height * 2 + 2, m_width * 4 + 2);
   std::vector visited(m_height, std::vector(m_width, false));
   std::stack<std::pair<int, int>> maze_stack;
 
