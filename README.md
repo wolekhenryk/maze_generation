@@ -24,6 +24,10 @@ Instructions:
 
 This is a console application. After compiling and running, the user is asked for 2 32-bit signed integers. The first one denotes the width of the maze, and the other denotes the height. Please note that with font size 18 mazes with height exceeding 30 will often not fit on the screen. The program is specifically designed to sleep for 10 milliseconds at each stack's iteration to beautifully visualize the maze creation.
 
+## Solver
+
+Recently a solver was added. It performs a stunning visualization, marking red cells which have been visited, and marking green the shortest diagonal path. I have plans on extending the options of algorithm choices. As of today, BFS and DFS are avaibale.
+
 
 ## Future plans
 I intend to add the possibility to solve each maze which has been created. This opens up a chance to perform benchmarking between 4 most commonly used pathfinding algorithms:
@@ -34,6 +38,5 @@ I intend to add the possibility to solve each maze which has been created. This 
 
 ## Screenshots
 
-![Maze of size 30x30](/examples/maze_1.png)
 ![Maze of size 50x30](/examples/maze_2.png)
-
+![Solved maze](/examples/maze_4.png)
