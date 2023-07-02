@@ -25,6 +25,13 @@ Instructions:
 This is a console application. After compiling and running, the user is asked for 2 32-bit signed integers. The first one denotes the width of the maze, and the other denotes the height. Please note that with font size 18 mazes with height exceeding 30 will often not fit on the screen. The program is specifically designed to sleep for 10 milliseconds at each stack's iteration to beautifully visualize the maze creation.
 
 
+## Future plans
+I intend to add the possibility to solve each maze which has been created. This opens up a chance to perform benchmarking between 4 most commonly used pathfinding algorithms:
+- Breadth-first search
+- Depth-first search
+- Dijkstra's algorithm
+- A* algorithm
+
 ## Screenshots
 
 ![Maze of size 30x30](/examples/maze_1.png)
