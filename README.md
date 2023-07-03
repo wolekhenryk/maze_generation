@@ -38,5 +38,5 @@ I intend to add the possibility to solve each maze which has been created. This 
 
 ## Screenshots
 
-![Maze of size 50x30](/examples/maze_2.png)
-![Solved maze](/examples/maze_4.png)
+![Maze of size 50x30](/examples/maze_4.png)
+![Solved maze](/examples/maze_5.png)
