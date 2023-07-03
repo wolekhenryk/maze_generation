@@ -42,3 +42,7 @@ These screenshots represent solved mazes using Breadth-first search
 
 ![Maze of size 50x30](/examples/maze_6.png)
 ![Solved maze](/examples/maze_5.png)
+
+Here, A* was used:
+
+![A*](/examples/a_star3.png)
