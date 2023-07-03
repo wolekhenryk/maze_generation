@@ -211,7 +211,7 @@ void Maze::make_maze_interesting(const int percent) {
 }
 
 void Maze::generate(const bool is_visible) {
-  ConsoleHandler::resize_console(m_height * 2 + 2, m_width * 4 + 2);
+  ConsoleHandler::resize_console(m_height * 2 + 6, m_width * 4 + 2);
   std::vector visited(m_height, std::vector(m_width, false));
   std::stack<std::pair<int, int>> maze_stack;
 

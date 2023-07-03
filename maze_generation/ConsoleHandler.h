@@ -5,6 +5,21 @@
 
 class ConsoleHandler {
  public:
+  static void set_console_utf8_encoding() {
+    // Get the current console's output handle
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    // Set the console mode to enable UTF-8 encoding
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+
+    // Set the console output mode to handle UTF-8 characters
+    DWORD consoleMode;
+    GetConsoleMode(consoleHandle, &consoleMode);
+    SetConsoleMode(consoleHandle,
+                   consoleMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+  }
+
   static void resize_console(const int rows, const int cols) {
     const HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -70,7 +85,33 @@ class ConsoleHandler {
     SetConsoleTextAttribute(console_handle, attributes);
   }
 
+  static void set_fore_color(const WORD foreground_color) {
+    const HANDLE console_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO screen_buffer_info;
+    GetConsoleScreenBufferInfo(console_handle, &screen_buffer_info);
+    WORD attributes = screen_buffer_info.wAttributes;
+    attributes &= ~(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED |
+                    BACKGROUND_INTENSITY);
+    attributes |= foreground_color;
+    SetConsoleTextAttribute(console_handle, attributes);
+  }
+
   static void reset_text_color() {
     set_text_color(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
+  }
+
+  static void setCursorPosition(int x, int y) {
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD cursorCoord;
+    cursorCoord.X = x;
+    cursorCoord.Y = y;
+    SetConsoleCursorPosition(consoleHandle, cursorCoord);
+  }
+
+  static void display_string_at_position(const std::string& str, int x, int y) {
+    setCursorPosition(x, y);
+    DWORD numCharsWritten;
+    WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), str.c_str(), str.length(),
+                 &numCharsWritten, nullptr);
   }
 };
