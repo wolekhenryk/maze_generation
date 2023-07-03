@@ -1,28 +1,53 @@
 #include "Maze.h"
 
+constexpr WORD BACKGROUND_WHITE =
+    BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+
 Cell::Cell(const int i, const int j)
     : left_wall(true),
       down_wall(true),
       right_wall(true),
       top_wall(true),
       i(2 * i + 2),
-      j(2 * j + 1) {}
+      j(2 * j + 1),
+      orig_i(i),
+      orig_j(j),
+      color(BACKGROUND_WHITE) {}
 
 bool Cell::has_no_walls_connected() const {
   return left_wall && down_wall && right_wall && top_wall;
 }
 
 void Cell::display_cell() const {
-  ConsoleHandler::draw_pixel(i, j, ' ', BACKGROUND_BLUE);
+  ConsoleHandler::draw_pixel(i, j, ' ', color);
 
   if (!left_wall)
-    ConsoleHandler::draw_pixel(i, j - 1, ' ', BACKGROUND_BLUE);
+    ConsoleHandler::draw_pixel(i, j - 1, ' ', color);
   if (!right_wall)
-    ConsoleHandler::draw_pixel(i, j + 1, ' ', BACKGROUND_BLUE);
+    ConsoleHandler::draw_pixel(i, j + 1, ' ', color);
   if (!top_wall)
-    ConsoleHandler::draw_pixel(i - 1, j, ' ', BACKGROUND_BLUE);
+    ConsoleHandler::draw_pixel(i - 1, j, ' ', color);
   if (!down_wall)
-    ConsoleHandler::draw_pixel(i + 1, j, ' ', BACKGROUND_BLUE);
+    ConsoleHandler::draw_pixel(i + 1, j, ' ', color);
+}
+
+void Cell::change_color_and_repaint(const WORD new_color) {
+  color = new_color;
+  display_cell();
+}
+
+void Cell::repaint_specific_wall(const WORD new_color, const directions& dir) {
+  color = new_color;
+  ConsoleHandler::draw_pixel(i, j, ' ', color);
+
+  if (dir == directions::down)
+    ConsoleHandler::draw_pixel(i + 1, j, ' ', color);
+  if (dir == directions::left)
+    ConsoleHandler::draw_pixel(i, j - 1, ' ', color);
+  if (dir == directions::right)
+    ConsoleHandler::draw_pixel(i, j + 1, ' ', color);
+  if (dir == directions::up)
+    ConsoleHandler::draw_pixel(i - 1, j, ' ', color);
 }
 
 void Cell::erase_left_wall() {
@@ -39,6 +64,26 @@ void Cell::erase_top_wall() {
 
 void Cell::erase_bottom_wall() {
   down_wall = false;
+}
+
+bool Cell::can_go_left() const {
+  return !left_wall;
+}
+
+bool Cell::can_go_right() const {
+  return !right_wall;
+}
+
+bool Cell::can_go_up() const {
+  return !top_wall;
+}
+
+bool Cell::can_go_down() const {
+  return !down_wall;
+}
+
+std::pair<int, int> Cell::get_position() const {
+  return std::make_pair(orig_i, orig_j);
 }
 
 bool Maze::invalid_coords(const int i, const int j) const {
@@ -117,14 +162,62 @@ Maze::Maze(const int width, const int height)
   }
 }
 
-void Maze::generate() {
+std::vector<std::vector<Cell>>& Maze::get_maze() {
+  return maze;
+}
+
+std::pair<int, int> Maze::get_size() const {
+  return std::make_pair(m_width, m_height);
+}
+
+void Maze::make_maze_interesting(const int percent) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution i_random(0, m_height - 1);
+  std::uniform_int_distribution j_random(0, m_width - 1);
+  std::uniform_int_distribution random_w(0, 3);
+
+  const auto total_count = percent * m_width * m_height;
+  const auto altered_walls = total_count / 100;
+
+  for (int i = 0; i < altered_walls; i++) {
+    const auto random_wall = random_w(gen);
+
+    const auto i_r = i_random(gen);
+    const auto j_r = j_random(gen);
+
+    if (is_on_edge(i_r, j_r))
+      continue;
+
+    if (random_wall == 0) {
+      maze[i_r][j_r].erase_bottom_wall();
+      maze[i_r + 1][j_r].erase_top_wall();
+    }
+    if (random_wall == 1) {
+      maze[i_r][j_r].erase_left_wall();
+      maze[i_r][j_r - 1].erase_right_wall();
+    }
+    if (random_wall == 2) {
+      maze[i_r][j_r].erase_right_wall();
+      maze[i_r][j_r + 1].erase_left_wall();
+    }
+    if (random_wall == 3) {
+      maze[i_r][j_r].erase_top_wall();
+      maze[i_r - 1][j_r].erase_bottom_wall();
+    }
+
+    maze[i_r][j_r].display_cell();
+  }
+}
+
+void Maze::generate(const bool is_visible) {
   ConsoleHandler::resize_console(m_height * 2 + 2, m_width * 4 + 2);
   std::vector visited(m_height, std::vector(m_width, false));
   std::stack<std::pair<int, int>> maze_stack;
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(0, 3);
+  std::uniform_int_distribution dist(0, 3);
 
   maze_stack.push(std::make_pair(0, 0));
   visited[0][0] = true;
@@ -132,9 +225,9 @@ void Maze::generate() {
   while (!maze_stack.empty()) {
     const auto curr_pos = maze_stack.top();
     const auto [curr_i, curr_j] = curr_pos;
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    if (!maze[curr_i][curr_j].has_no_walls_connected()) {
+    if (!maze[curr_i][curr_j].has_no_walls_connected() && is_visible) {
       maze[curr_i][curr_j].display_cell();
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 
     // Check if the current cell has any unvisited neighbors

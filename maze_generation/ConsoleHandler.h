@@ -67,12 +67,10 @@ class ConsoleHandler {
     attributes &= ~(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED |
                     BACKGROUND_INTENSITY);
     attributes |= color;
-    // Set the background color to white
-    attributes |= BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
     SetConsoleTextAttribute(console_handle, attributes);
   }
 
   static void reset_text_color() {
-    set_text_color(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+    set_text_color(BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
   }
 };
