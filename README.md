@@ -38,5 +38,7 @@ I intend to add the possibility to solve each maze which has been created. This 
 
 ## Screenshots
 
+These screenshots represent solved mazes using Breadth-first search
+
 ![Maze of size 50x30](/examples/maze_6.png)
 ![Solved maze](/examples/maze_5.png)
